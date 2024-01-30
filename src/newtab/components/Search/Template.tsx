@@ -25,14 +25,14 @@ export default function Template(props: ConnectedProps<Duck>) {
           ))}
         </select>
         <input
-          className='input min-w-72 join-item'
+          className='input min-w-72 join-item focus:outline-none border-none'
           placeholder='Search'
           enterKeyHint='search'
           value={store.value}
           onChange={(event) => dispatch(creators.setValue(event.target.value))}
           onKeyDown={(event) => event.key === 'Enter' && handlers.search()}
         />
-        <button className='btn join-item' onClick={handlers.search}>
+        <button className='btn join-item glass' onClick={handlers.search}>
           Search
         </button>
       </div>
