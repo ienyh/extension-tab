@@ -9,7 +9,7 @@ export class ChromeStorageAdaptor<T> implements Adaptor<T>, Disposable {
   watch(): Observable<T> {
     const adaptor = this
     const $ = new Observable<T>((subscriber) => {
-      const nextNewest = () => chrome.storage[this.type].get().then((v: T) => subscriber.next(v))
+      const nextNewest = () => chrome.storage[adaptor.type].get().then((v: T) => subscriber.next(v))
       const listener: Parameters<typeof chrome.storage.onChanged.addListener>[0] = function (
         changes,
         namespace
@@ -24,7 +24,7 @@ export class ChromeStorageAdaptor<T> implements Adaptor<T>, Disposable {
         chrome.storage.onChanged.removeListener(listener)
       }
     })
-    
+
     return $
   }
 
