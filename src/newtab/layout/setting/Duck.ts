@@ -1,6 +1,4 @@
-import { StreamerMethod, createToPayload, filterAction, reduceFromPayload } from 'observable-duck'
-import { Observable } from 'rxjs'
-import { Action } from 'redux'
+import { createToPayload, reduceFromPayload } from 'observable-duck'
 import { Sync } from '@src/newtab/ducks/Sync'
 import { ChromeStorageAdaptor } from './StorageAdaptor'
 
@@ -33,19 +31,5 @@ export default class Setting extends Sync {
       ...super.creators,
       toggle: createToPayload<boolean>(types.TOGGLE),
     }
-  }
-  @StreamerMethod()
-  watchUpdate(action$: Observable<Action>) {
-    const duck = this
-    const { dispatch, creators } = duck
-    dispatch(
-      creators.set({
-        theme: 'default',
-      })
-    )
-    return action$.pipe(filterAction([])).subscribe(() => {
-      const state = duck.getState()
-      console.log(state)
-    })
   }
 }

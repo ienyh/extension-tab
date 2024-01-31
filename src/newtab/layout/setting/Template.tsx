@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { ConnectedProps } from 'observable-duck'
 import Duck from './Duck'
-import ThemeSwitch from '@src/newtab/components/ThemeSwitch'
+import ThemeSelect from '@src/newtab/components/ThemeSelect'
 
 export default function Template(props: ConnectedProps<Duck>) {
   const { duck, store, dispatch } = props
@@ -43,7 +43,7 @@ export default function Template(props: ConnectedProps<Duck>) {
             <form>
               <div className='flex align-baseline'>
                 <label>主题：</label>
-                <ThemeSwitch value={state.theme} onChange={(v) => push({ theme: v })} />
+                <ThemeSelect value={state.theme} onChange={(v) => push({ theme: v })} />
               </div>
             </form>
           </div>
