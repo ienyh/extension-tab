@@ -6,6 +6,7 @@ import {
   reduceFromPayload,
 } from 'observable-duck'
 import { Observable } from 'rxjs'
+import { debounceTime } from 'rxjs/operators'
 import { Action } from 'redux'
 
 export enum Engine {
@@ -15,12 +16,18 @@ export enum Engine {
 export const EngineMeta = {
   [Engine.Google]: {
     text: 'Google',
-    getQueryString: (query) => `https://www.google.com/search?q=${query}`
+    getQueryString: (query) => `https://www.google.com/search?q=${query}`,
   },
   [Engine.Bing]: {
     text: 'Bing',
-    getQueryString: (query) => `https://www.bing.com/search?q=${query}`
+    getQueryString: (query) => `https://www.bing.com/search?q=${query}`,
   },
+}
+
+interface CompleteItem {
+  text: string
+  desc?: string
+  image?: string
 }
 
 export default class Search extends Base {
@@ -29,6 +36,7 @@ export default class Search extends Base {
       SET_ENGINE,
       SET_VALUE,
       SEARCH,
+      SET_COMPLETES,
     }
     return {
       ...Type,
@@ -39,6 +47,7 @@ export default class Search extends Base {
     return {
       value: reduceFromPayload<string>(types.SET_VALUE, ''),
       engine: reduceFromPayload<Engine>(types.SET_ENGINE, Engine.Google),
+      completes: reduceFromPayload<CompleteItem[]>(types.SET_COMPLETES, []),
     }
   }
   get creators() {
@@ -48,6 +57,56 @@ export default class Search extends Base {
       setValue: createToPayload<string>(types.SET_VALUE),
       search: createToPayload<void>(types.SEARCH),
     }
+  }
+  websocket: WebSocket;
+  [Symbol.dispose]() {
+    super[Symbol.dispose]()
+    const { websocket } = this
+    if (websocket) {
+      websocket.close()
+      this.websocket = undefined
+    }
+  }
+  initWebSocket() {
+    if (this.websocket) {
+      return Promise.resolve()
+    }
+    const { types, dispatch } = this
+    this.websocket = new WebSocket('wss://api.bonjourr.lol/suggestions')
+    this.websocket.addEventListener('message', (event) => {
+      const completes = []
+      try {
+        completes.push(...JSON.parse(event.data))
+      } catch (error) {}
+      dispatch({
+        type: types.SET_COMPLETES,
+        payload: completes,
+      })
+    })
+    return new Promise<void>((resolve) => {
+      this.websocket.addEventListener('open', () => {
+        resolve()
+      })
+    })
+  }
+  @StreamerMethod()
+  watchChange(action$: Observable<Action>) {
+    const duck = this
+    const { types, getState, dispatch } = duck
+    return action$
+      .pipe(filterAction([types.SET_VALUE, types.SET_ENGINE]), debounceTime(300))
+      .subscribe(() => {
+        const { value, engine } = getState()
+        if (!value) {
+          dispatch({
+            type: types.SET_COMPLETES,
+            payload: [],
+          })
+        }
+        duck.initWebSocket().then(() => {
+          this.websocket.send(JSON.stringify({ q: value, with: engine }))
+        })
+      })
   }
   @StreamerMethod()
   watchUpdate(action$: Observable<Action>) {

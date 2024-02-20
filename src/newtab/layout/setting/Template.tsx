@@ -37,15 +37,13 @@ export default function Template(props: ConnectedProps<Duck>) {
             </svg>
           </label>
         </div>
-        <div className='drawer-side'>
+        <div className='drawer-side z-10'>
           <label htmlFor='setting-drawer' aria-label='close sidebar' className='drawer-overlay' />
-          <div className='p-4 w-80 min-h-full bg-base-200 text-base-content'>
-            <form>
-              <div className='flex align-baseline'>
-                <label>主题：</label>
-                <ThemeSelect value={state.theme} onChange={(v) => push({ theme: v })} />
-              </div>
-            </form>
+          <div className='p-4 w-96 min-h-full bg-base-200 text-base-content'>
+            <span>
+              主题：
+              <ThemeSelect value={state.theme} onChange={(v) => push({ theme: v })} />
+            </span>
           </div>
         </div>
       </div>

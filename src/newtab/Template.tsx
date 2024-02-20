@@ -11,7 +11,9 @@ export default function Template(props: ConnectedProps<Duck>) {
     <>
       <div className='carousel h-lvh w-lvw'>
         <div className='tab-container carousel-item w-full h-full flex justify-center items-center'>
-          <Search />
+          <div className='relative -top-40'>
+            <Search />
+          </div>
         </div>
         <div className='tab-container carousel-item w-full h-full grid grid-cols-6 gap-4'>
           <div className='border w-100 h-100'>01</div>

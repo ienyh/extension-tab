@@ -9,7 +9,7 @@ interface ThemeSelectProps {
 export default function ThemeSelect(props: ThemeSelectProps) {
   const { value, onChange } = props
   return (
-    <div className='dropdown mb-72'>
+    <div className='dropdown'>
       <div tabIndex={0} role='button' className='btn'>
         {value}
         <svg
