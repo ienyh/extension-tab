@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { ConnectedProps } from 'observable-duck'
-import Duck, { Engine, EngineMeta } from './Duck'
+import Duck from './Duck'
 import * as classnames from 'classnames'
 
 export default function Template(props: ConnectedProps<Duck>) {
@@ -16,18 +16,8 @@ export default function Template(props: ConnectedProps<Duck>) {
   return (
     <div className={classnames('dropdown', store.completes.length && 'dropdown-open')}>
       <div className='join border shadow-md'>
-        <select
-          className='select join-item'
-          onChange={(event) => dispatch(creators.setEngine(event.target.value as Engine))}
-        >
-          {Object.keys(EngineMeta).map((engine) => (
-            <option key={engine} value={engine}>
-              {EngineMeta[engine].text}
-            </option>
-          ))}
-        </select>
         <input
-          className='input min-w-72 join-item focus:outline-none border-none'
+          className='input min-w-96 join-item focus:outline-none border-none'
           placeholder='Search'
           enterKeyHint='search'
           value={store.value}

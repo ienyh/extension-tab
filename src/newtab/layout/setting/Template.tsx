@@ -2,6 +2,7 @@ import * as React from 'react'
 import { ConnectedProps } from 'observable-duck'
 import Duck from './Duck'
 import ThemeSelect from '@src/newtab/components/ThemeSelect'
+import Select from '@src/newtab/components/Select'
 
 export default function Template(props: ConnectedProps<Duck>) {
   const { duck, store, dispatch } = props
@@ -43,6 +44,18 @@ export default function Template(props: ConnectedProps<Duck>) {
             <span>
               主题：
               <ThemeSelect value={state.theme} onChange={(v) => push({ theme: v })} />
+            </span>
+            <div className='h-2'></div>
+            <span>
+              搜索引擎：
+              <Select
+                value={state.engine}
+                onChange={(v) => push({ engine: v })}
+                options={[
+                  { value: 'google', text: 'Google' },
+                  { value: 'bing', text: 'Bing' },
+                ]}
+              />
             </span>
           </div>
         </div>

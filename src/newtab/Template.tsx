@@ -19,9 +19,7 @@ export default function Template(props: ConnectedProps<Duck>) {
           <div className='border w-100 h-100'>01</div>
           <div>01</div>
           <div>01</div>
-          <div className='col-span-2'>
-            <Search />
-          </div>
+          <div className='col-span-2'>{/* <Search /> */}</div>
           <div>01</div>
           <div>01</div>
           <div>01</div>

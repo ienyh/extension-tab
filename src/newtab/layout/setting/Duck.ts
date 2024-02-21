@@ -5,6 +5,7 @@ import { ChromeStorageAdaptor } from './StorageAdaptor'
 export default class Setting extends Sync {
   SyncParams: {
     theme?: string
+    engine?: string
   }
   get adaptor() {
     return new ChromeStorageAdaptor<this['SyncParams']>('sync')

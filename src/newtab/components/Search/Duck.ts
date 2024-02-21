@@ -5,9 +5,10 @@ import {
   filterAction,
   reduceFromPayload,
 } from 'observable-duck'
-import { Observable } from 'rxjs'
+import { Observable, from } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import { Action } from 'redux'
+import { runtime } from '@src/newtab/layout/setting'
 
 export enum Engine {
   Google = 'google',
@@ -58,6 +59,17 @@ export default class Search extends Base {
       search: createToPayload<void>(types.SEARCH),
     }
   }
+  init(get, dispatch): void {
+    super.init(get, dispatch)
+    const { creators, getState } = this
+    const setting$ = from(runtime.redux)
+    setting$.pipe(debounceTime(100)).subscribe((value) => {
+      const engine = value.state?.engine
+      if (engine && getState().engine !== engine) {
+        dispatch(creators.setEngine(engine as Engine))
+      }
+    })
+  }
   websocket: WebSocket;
   [Symbol.dispose]() {
     super[Symbol.dispose]()
@@ -102,6 +114,7 @@ export default class Search extends Base {
             type: types.SET_COMPLETES,
             payload: [],
           })
+          return
         }
         duck.initWebSocket().then(() => {
           this.websocket.send(JSON.stringify({ q: value, with: engine }))
