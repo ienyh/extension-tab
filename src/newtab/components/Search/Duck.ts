@@ -1,5 +1,6 @@
 import {
   Base,
+  PayloadAction,
   StreamerMethod,
   createToPayload,
   filterAction,
@@ -38,6 +39,8 @@ export default class Search extends Base {
       SET_VALUE,
       SEARCH,
       SET_COMPLETES,
+      SET_COMPLETE_SELECTED,
+      KEYDOWN,
     }
     return {
       ...Type,
@@ -49,6 +52,7 @@ export default class Search extends Base {
       value: reduceFromPayload<string>(types.SET_VALUE, ''),
       engine: reduceFromPayload<Engine>(types.SET_ENGINE, Engine.Google),
       completes: reduceFromPayload<CompleteItem[]>(types.SET_COMPLETES, []),
+      completeSelected: reduceFromPayload<string>(types.SET_COMPLETE_SELECTED, ''),
     }
   }
   get creators() {
@@ -57,6 +61,7 @@ export default class Search extends Base {
       setEngine: createToPayload<Engine>(types.SET_ENGINE),
       setValue: createToPayload<string>(types.SET_VALUE),
       search: createToPayload<void>(types.SEARCH),
+      keydown: createToPayload<string>(types.KEYDOWN),
     }
   }
   init(get, dispatch): void {
@@ -102,7 +107,7 @@ export default class Search extends Base {
     })
   }
   @StreamerMethod()
-  watchChange(action$: Observable<Action>) {
+  watchComplete(action$: Observable<Action>) {
     const duck = this
     const { types, getState, dispatch } = duck
     return action$
@@ -114,6 +119,10 @@ export default class Search extends Base {
             type: types.SET_COMPLETES,
             payload: [],
           })
+          dispatch({
+            type: types.SET_COMPLETE_SELECTED,
+            payload: '',
+          })
           return
         }
         duck.initWebSocket().then(() => {
@@ -122,12 +131,46 @@ export default class Search extends Base {
       })
   }
   @StreamerMethod()
-  watchUpdate(action$: Observable<Action>) {
+  watchSearch(action$: Observable<Action>) {
     const duck = this
     return action$.pipe(filterAction(duck.types.SEARCH)).subscribe(() => {
-      const { value, engine } = duck.getState()
+      const { value, engine, completeSelected } = duck.getState()
       if (value) {
-        location.assign(EngineMeta[engine as Engine].getQueryString(value))
+        const query = completeSelected || value
+        location.assign(EngineMeta[engine as Engine].getQueryString(query))
+      }
+    })
+  }
+  @StreamerMethod()
+  watchKeydown(action$: Observable<PayloadAction<string>>) {
+    const duck = this
+    const { types, creators, dispatch } = duck
+    return action$.pipe(filterAction(types.KEYDOWN)).subscribe((action) => {
+      const key = action.payload
+      if (key === 'Enter') {
+        dispatch(creators.search())
+      }
+      if (key === 'ArrowDown' || key === 'ArrowUp') {
+        const { completes, completeSelected } = duck.getState()
+        if (!completeSelected) {
+          dispatch({
+            type: types.SET_COMPLETE_SELECTED,
+            payload: completes[0].text,
+          })
+          return
+        }
+        const current = (completes as Array<CompleteItem>).findIndex(
+          (item) => item.text === completeSelected
+        )
+        if (current === -1) {
+          return
+        }
+        dispatch({
+          type: types.SET_COMPLETE_SELECTED,
+          payload: (completes as Array<CompleteItem>).at(
+            key === 'ArrowDown' ? current + 1 : current - 1
+          ).text,
+        })
       }
     })
   }
