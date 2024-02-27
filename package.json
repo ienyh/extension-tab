@@ -1,7 +1,7 @@
 {
   "name": "tab",
   "displayName": "Tab",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A basic extension.",
   "author": "chenyh.site@gmail.com",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "classnames": "^2.5.1",
-    "observable-duck": "^0.2.0",
+    "observable-duck": "^0.2.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "rxjs": "^7.8.1"

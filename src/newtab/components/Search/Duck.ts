@@ -159,17 +159,14 @@ export default class Search extends Base {
           })
           return
         }
-        const current = (completes as Array<CompleteItem>).findIndex(
-          (item) => item.text === completeSelected
-        )
+        const current = completes.findIndex((item) => item.text === completeSelected)
         if (current === -1) {
           return
         }
         dispatch({
           type: types.SET_COMPLETE_SELECTED,
-          payload: (completes as Array<CompleteItem>).at(
-            (key === 'ArrowDown' ? current + 1 : current - 1) %
-              (completes as Array<CompleteItem>).length
+          payload: completes.at(
+            (key === 'ArrowDown' ? current + 1 : current - 1) % completes.length
           ).text,
         })
       }
