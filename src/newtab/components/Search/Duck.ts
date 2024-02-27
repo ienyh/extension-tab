@@ -168,7 +168,8 @@ export default class Search extends Base {
         dispatch({
           type: types.SET_COMPLETE_SELECTED,
           payload: (completes as Array<CompleteItem>).at(
-            key === 'ArrowDown' ? current + 1 : current - 1
+            (key === 'ArrowDown' ? current + 1 : current - 1) %
+              (completes as Array<CompleteItem>).length
           ).text,
         })
       }
