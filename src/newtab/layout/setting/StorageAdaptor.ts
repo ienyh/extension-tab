@@ -9,7 +9,11 @@ export class ChromeStorageAdaptor<T> implements Adaptor<T>, Disposable {
   watch(): Observable<T> {
     const adaptor = this
     const $ = new Observable<T>((subscriber) => {
-      const latest = () => chrome.storage[adaptor.type].get().then((v: T) => subscriber.next(v))
+      const latest = async () => {
+        const defaults = require('./default.json')
+        const value = await chrome.storage[adaptor.type].get()
+        subscriber.next(Object.assign(defaults, value))
+      }
       const listener: Parameters<typeof chrome.storage.onChanged.addListener>[0] = function (
         changes,
         namespace
