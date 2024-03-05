@@ -9,6 +9,7 @@ import {
   reduceFromPayload,
 } from 'observable-duck'
 import { Observable } from 'rxjs'
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket'
 import { debounceTime } from 'rxjs/operators'
 import { Action } from 'redux'
 import { runtime } from '@src/newtab/layout/setting'
@@ -76,36 +77,25 @@ export default class Search extends Base {
       }
     })
   }
-  websocket: WebSocket;
-  [Symbol.dispose]() {
-    super[Symbol.dispose]()
-    const { websocket } = this
-    if (websocket) {
-      websocket.close()
-      this.websocket = undefined
-    }
-  }
+  websocket$: WebSocketSubject<any>
   initWebSocket() {
-    if (this.websocket) {
-      return Promise.resolve()
+    if (this.websocket$) {
+      return
     }
     const { types, dispatch } = this
-    this.websocket = new WebSocket('wss://api.bonjourr.lol/suggestions')
-    this.websocket.addEventListener('message', (event) => {
-      const completes = []
-      try {
-        completes.push(...JSON.parse(event.data))
-      } catch (error) {}
-      dispatch({
-        type: types.SET_COMPLETES,
-        payload: completes,
+    this.websocket$ = webSocket('wss://api.bonjourr.lol/suggestions')
+    this.subscription.add(
+      this.websocket$.subscribe((data) => {
+        const completes = []
+        try {
+          completes.push(...JSON.parse(data))
+        } catch (error) {}
+        dispatch({
+          type: types.SET_COMPLETES,
+          payload: completes,
+        })
       })
-    })
-    return new Promise<void>((resolve) => {
-      this.websocket.addEventListener('open', () => {
-        resolve()
-      })
-    })
+    )
   }
   @StreamerMethod()
   watchComplete(action$: Observable<Action>) {
@@ -126,9 +116,10 @@ export default class Search extends Base {
           })
           return
         }
-        duck.initWebSocket().then(() => {
-          this.websocket.send(JSON.stringify({ q: value, with: engine }))
-        })
+        if (!duck.websocket$) {
+          duck.initWebSocket()
+        }
+        duck.websocket$.next(JSON.stringify({ q: value, with: engine }))
       })
   }
   @StreamerMethod()
