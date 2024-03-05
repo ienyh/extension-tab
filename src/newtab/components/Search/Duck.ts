@@ -1,12 +1,14 @@
 import {
   Base,
+  DuckState,
+  From,
   PayloadAction,
   StreamerMethod,
   createToPayload,
   filterAction,
   reduceFromPayload,
 } from 'observable-duck'
-import { Observable, from } from 'rxjs'
+import { Observable } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import { Action } from 'redux'
 import { runtime } from '@src/newtab/layout/setting'
@@ -64,11 +66,10 @@ export default class Search extends Base {
       keydown: createToPayload<string>(types.KEYDOWN),
     }
   }
-  init(get, dispatch): void {
-    super.init(get, dispatch)
-    const { creators, getState } = this
-    const setting$ = from(runtime.redux)
-    setting$.pipe(debounceTime(100)).subscribe((value) => {
+  @From(runtime.redux)
+  accept(setting$: Observable<DuckState<typeof runtime.duck>>) {
+    const { creators, getState, dispatch } = this
+    return setting$.pipe(debounceTime(100)).subscribe((value) => {
       const engine = value.state?.engine
       if (engine && getState().engine !== engine) {
         dispatch(creators.setEngine(engine as Engine))
