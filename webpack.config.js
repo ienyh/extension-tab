@@ -3,8 +3,10 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const FriendlyErrorsWebpackPlugin = require('@soda/friendly-errors-webpack-plugin')
-const WebpackBarPlugin = require("webpackbar");
+const WebpackBarPlugin = require('webpackbar')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 
 const mode = process.env.NODE_ENV
 const isDev = mode === 'development'
@@ -20,10 +22,9 @@ const plugins = [
     template: './src/newtab/template.html',
     chunks: ['newtab'],
   }),
+  new MiniCssExtractPlugin(),
   new CopyWebpackPlugin({
-    patterns: [
-      { from: './assets', to: '.' }
-    ]
+    patterns: [{ from: './assets', to: '.' }],
   }),
   new WebpackBarPlugin(),
   new FriendlyErrorsWebpackPlugin(),
@@ -36,6 +37,7 @@ const plugins = [
 if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin())
 } else {
+  plugins.push(new CssMinimizerPlugin())
   plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }))
 }
 
@@ -57,21 +59,19 @@ module.exports = {
   stats: 'summary',
   devServer: {
     hot: true,
-    static: [
-      { directory: path.resolve(__dirname, devDirectory) }
-    ],
+    static: [{ directory: path.resolve(__dirname, devDirectory) }],
     devMiddleware: {
       writeToDisk: (filePath) => {
-        return !/\.hot-update\.(js|json)/.test(filePath);
+        return !/\.hot-update\.(js|json)/.test(filePath)
       },
-    }
+    },
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
     alias: {
       '@src': path.resolve(__dirname, 'src/'),
       '@src/utils': path.resolve(__dirname, 'src/utils/'),
-    }
+    },
   },
   module: {
     rules: [
@@ -81,8 +81,8 @@ module.exports = {
         use: [
           {
             loader: 'ts-loader',
-          }
-        ]
+          },
+        ],
       },
       {
         include: /node_modules\/redux-logger/,
@@ -91,7 +91,7 @@ module.exports = {
       },
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader', 'postcss-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader'],
       },
     ],
   },
@@ -118,7 +118,7 @@ module.exports = {
           name: 'vendor',
           chunks: 'all',
         },
-      }
+      },
     },
   },
   plugins,
