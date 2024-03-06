@@ -14,6 +14,7 @@ import { webSocket } from 'rxjs/webSocket'
 import { debounceTime } from 'rxjs/operators'
 import { Action } from 'redux'
 import { runtime } from '@src/newtab/layout/setting'
+import reporter from '@src/common/reporter'
 
 export enum Engine {
   Google = 'google',
@@ -83,15 +84,13 @@ export default class Search extends Base {
     const { types, dispatch } = this
     let $ = webSocket('wss://api.bonjourr.lol/suggestions')
     this.subscription.add(
-      $.subscribe((data: CompleteItem[]) => {
-        const completes = []
-        try {
-          completes.push(...data)
-        } catch (error) {}
-        dispatch({
-          type: types.SET_COMPLETES,
-          payload: completes,
-        })
+      $.subscribe({
+        next: (data: CompleteItem[]) =>
+          dispatch({
+            type: types.SET_COMPLETES,
+            payload: data,
+          }),
+        error: reporter.error,
       })
     )
     return $

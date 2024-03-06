@@ -43,13 +43,13 @@ export default function Template(props: ConnectedProps<Duck>) {
           <div className='p-4 w-96 min-h-full bg-base-200 text-base-content'>
             <span>
               主题：
-              <ThemeSelect value={state.theme} onChange={(v) => push({ theme: v })} />
+              <ThemeSelect value={state?.theme} onChange={(v) => push({ theme: v })} />
             </span>
             <div className='h-2'></div>
             <span>
               搜索引擎：
               <Select
-                value={state.engine}
+                value={state?.engine}
                 onChange={(v) => push({ engine: v })}
                 options={[
                   { value: 'google', text: 'Google' },
