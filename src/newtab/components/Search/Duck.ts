@@ -85,10 +85,10 @@ export default class Search extends Base {
     const { types, dispatch } = this
     this.websocket$ = webSocket('wss://api.bonjourr.lol/suggestions')
     this.subscription.add(
-      this.websocket$.subscribe((data) => {
+      this.websocket$.subscribe((data: CompleteItem[]) => {
         const completes = []
         try {
-          completes.push(...JSON.parse(data))
+          completes.push(...data)
         } catch (error) {}
         dispatch({
           type: types.SET_COMPLETES,
@@ -119,7 +119,7 @@ export default class Search extends Base {
         if (!duck.websocket$) {
           duck.initWebSocket()
         }
-        duck.websocket$.next(JSON.stringify({ q: value, with: engine }))
+        duck.websocket$.next({ q: value, with: engine })
       })
   }
   @StreamerMethod()
