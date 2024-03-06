@@ -1,5 +1,6 @@
 import {
   Base,
+  Cache,
   DuckState,
   From,
   PayloadAction,
@@ -9,7 +10,7 @@ import {
   reduceFromPayload,
 } from 'observable-duck'
 import { Observable } from 'rxjs'
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket'
+import { webSocket } from 'rxjs/webSocket'
 import { debounceTime } from 'rxjs/operators'
 import { Action } from 'redux'
 import { runtime } from '@src/newtab/layout/setting'
@@ -77,15 +78,12 @@ export default class Search extends Base {
       }
     })
   }
-  websocket$: WebSocketSubject<any>
-  initWebSocket() {
-    if (this.websocket$) {
-      return
-    }
+  @Cache()
+  get websocket$() {
     const { types, dispatch } = this
-    this.websocket$ = webSocket('wss://api.bonjourr.lol/suggestions')
+    let $ = webSocket('wss://api.bonjourr.lol/suggestions')
     this.subscription.add(
-      this.websocket$.subscribe((data: CompleteItem[]) => {
+      $.subscribe((data: CompleteItem[]) => {
         const completes = []
         try {
           completes.push(...data)
@@ -96,6 +94,7 @@ export default class Search extends Base {
         })
       })
     )
+    return $
   }
   @StreamerMethod()
   watchComplete(action$: Observable<Action>) {
@@ -115,9 +114,6 @@ export default class Search extends Base {
             payload: '',
           })
           return
-        }
-        if (!duck.websocket$) {
-          duck.initWebSocket()
         }
         duck.websocket$.next({ q: value, with: engine })
       })
