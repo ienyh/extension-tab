@@ -82,7 +82,7 @@ export default class Search extends Base {
   @Cache()
   get websocket$() {
     const { types, dispatch } = this
-    let $ = webSocket('wss://api.bonjourr.lol/suggestions')
+    const $ = webSocket('wss://api.bonjourr.lol/suggestions')
     this.subscription.add(
       $.subscribe({
         next: (data: CompleteItem[]) =>
