@@ -3,6 +3,7 @@ import { ConnectedProps } from 'observable-duck'
 import Duck from './Duck'
 import ThemeSelect from '@src/newtab/components/ThemeSelect'
 import Select from '@src/newtab/components/Select'
+import Footer from '@src/newtab/layout/footer/Template'
 
 export default function Template(props: ConnectedProps<Duck>) {
   const { duck, store, dispatch } = props
@@ -21,7 +22,10 @@ export default function Template(props: ConnectedProps<Duck>) {
           onChange={toggle}
         />
         <div className='drawer-content'>
-          <label htmlFor='setting-drawer' className='btn btn-circle fixed right-5 bottom-5'>
+          <label
+            htmlFor='setting-drawer'
+            className='btn btn-circle fixed right-5 bottom-5 shadow-md'
+          >
             <svg
               viewBox='0 0 1024 1024'
               version='1.1'
@@ -57,6 +61,7 @@ export default function Template(props: ConnectedProps<Duck>) {
                 ]}
               />
             </span>
+            <Footer />
           </div>
         </div>
       </div>
